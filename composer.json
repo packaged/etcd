@@ -1,0 +1,20 @@
+{
+  "name": "packaged/etcd",
+  "description": "Etcd client library",
+  "authors": [
+    {
+      "name": "Richard Gooding",
+      "email": "rich.gooding@jdi.io"
+    }
+  ],
+  "require-dev": {
+    "satooshi/php-coveralls": "*",
+    "phpunit/phpunit": "~4.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "Packaged\\Etcd\\": "src/",
+      "Packaged\\Etcd\\Tests\\": "tests/"
+    }
+  }
+}
