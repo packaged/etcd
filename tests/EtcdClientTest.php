@@ -3,6 +3,7 @@ namespace Packaged\Etcd\Tests;
 
 use Packaged\Etcd\EtcdClient;
 use Packaged\Etcd\Exceptions\EtcdException;
+use Packaged\Etcd\Exceptions\NotFoundException;
 
 class EtcdClientTest extends \PHPUnit_Framework_TestCase
 {
@@ -56,6 +57,12 @@ class EtcdClientTest extends \PHPUnit_Framework_TestCase
       'Not an etcd directory: /phpunit/ls/testA'
     );
     $client->ls('/phpunit/ls/testA');
+
+    $this->setExpectedException(
+      NotFoundException::class,
+      'Path not found: /phpunit/nonexistent/path'
+    );
+    $client->ls('/phpunit/nonexistent/path');
   }
 
   public function testSetGet()
