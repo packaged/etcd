@@ -2,6 +2,7 @@
 namespace Packaged\Etcd\Tests;
 
 use Packaged\Etcd\EtcdClient;
+use Packaged\Etcd\Exceptions\EtcdException;
 
 class EtcdClientTest extends \PHPUnit_Framework_TestCase
 {
@@ -14,7 +15,11 @@ class EtcdClientTest extends \PHPUnit_Framework_TestCase
   {
     $client = $this->_getClient();
 
-    foreach(['testA' => 'ValueA', 'testB' => 'ValueB', 'testC' => 'ValueC'] as $key => $value)
+    foreach([
+              'testA' => 'ValueA',
+              'testB' => 'ValueB',
+              'testC' => 'ValueC'
+            ] as $key => $value)
     {
       $client->set('/phpunit/ls/' . $key, $value);
       $client->set('/phpunit/ls/subdir/' . $key, $value);
@@ -23,9 +28,9 @@ class EtcdClientTest extends \PHPUnit_Framework_TestCase
     $result = $client->ls('/phpunit/ls');
     $this->assertEquals(
       [
-        '/phpunit/ls/testA' => 'ValueA',
-        '/phpunit/ls/testB' => 'ValueB',
-        '/phpunit/ls/testC' => 'ValueC',
+        '/phpunit/ls/testA'  => 'ValueA',
+        '/phpunit/ls/testB'  => 'ValueB',
+        '/phpunit/ls/testC'  => 'ValueC',
         '/phpunit/ls/subdir' => [],
       ],
       $result
@@ -34,9 +39,9 @@ class EtcdClientTest extends \PHPUnit_Framework_TestCase
     $result = $client->ls('/phpunit/ls', true);
     $this->assertEquals(
       [
-        '/phpunit/ls/testA' => 'ValueA',
-        '/phpunit/ls/testB' => 'ValueB',
-        '/phpunit/ls/testC' => 'ValueC',
+        '/phpunit/ls/testA'  => 'ValueA',
+        '/phpunit/ls/testB'  => 'ValueB',
+        '/phpunit/ls/testC'  => 'ValueC',
         '/phpunit/ls/subdir' => [
           '/phpunit/ls/subdir/testA' => 'ValueA',
           '/phpunit/ls/subdir/testB' => 'ValueB',
@@ -45,6 +50,12 @@ class EtcdClientTest extends \PHPUnit_Framework_TestCase
       ],
       $result
     );
+
+    $this->setExpectedException(
+      EtcdException::class,
+      'Not an etcd directory: /phpunit/ls/testA'
+    );
+    $client->ls('/phpunit/ls/testA');
   }
 
   public function testSetGet()

@@ -182,9 +182,14 @@ class EtcdClient
       );
     }
 
-    if(isset($result->node->nodes) && (count($result->node->nodes) > 0))
+    if(isset($result->node->nodes))
     {
       return $this->_parseLsNodes($result->node->nodes);
+    }
+
+    if(isset($result->node->value))
+    {
+      throw new EtcdException('Not an etcd directory: ' . $path);
     }
 
     throw new EtcdException(
