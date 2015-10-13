@@ -3,6 +3,7 @@ namespace Packaged\Etcd\Tests;
 
 use Packaged\Etcd\EtcdClient;
 use Packaged\Etcd\Exceptions\EtcdException;
+use Packaged\Etcd\Exceptions\IncorrectTypeException;
 use Packaged\Etcd\Exceptions\NotFoundException;
 
 class EtcdClientTest extends \PHPUnit_Framework_TestCase
@@ -80,5 +81,9 @@ class EtcdClientTest extends \PHPUnit_Framework_TestCase
       $client->set($key, $value);
       $this->assertEquals($value, $client->get($key));
     }
+
+    // test getting a directory
+    $this->setExpectedException(IncorrectTypeException::class, 'Path is not an etcd file: /phpunit');
+    $client->get('/phpunit');
   }
 }

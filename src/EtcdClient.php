@@ -2,6 +2,7 @@
 namespace Packaged\Etcd;
 
 use Packaged\Etcd\Exceptions\EtcdException;
+use Packaged\Etcd\Exceptions\IncorrectTypeException;
 use Packaged\Etcd\Exceptions\NotFoundException;
 
 class EtcdClient
@@ -127,6 +128,10 @@ class EtcdClient
     }
 
     $result = $response->getJsonBody();
+    if(isset($result->node->dir) && $result->node->dir)
+    {
+      throw new IncorrectTypeException('Path is not an etcd file: ' . $key);
+    }
     if(isset($result->node) && isset($result->node->value))
     {
       return $result->node->value;
@@ -189,7 +194,7 @@ class EtcdClient
 
     if(isset($result->node->value))
     {
-      throw new EtcdException('Not an etcd directory: ' . $path);
+      throw new IncorrectTypeException('Not an etcd directory: ' . $path);
     }
 
     throw new EtcdException(
