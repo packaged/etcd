@@ -122,10 +122,7 @@ class EtcdClient
   public function get($key)
   {
     $response = $this->_doRequest('GET', $this->_urlPathForKey($key));
-    if($response->getStatusCode() == 404)
-    {
-      throw new NotFoundException($key);
-    }
+    $this->_checkResponse($response, $key);
 
     $result = $response->getJsonBody();
     if(isset($result->node->dir) && $result->node->dir)
@@ -152,7 +149,21 @@ class EtcdClient
    */
   public function rm($key)
   {
-    $this->_doRequest('DELETE', $this->_urlPathForKey($key));
+    $this->_checkResponse(
+      $this->_doRequest('DELETE', $this->_urlPathForKey($key)),
+      $key
+    );
+  }
+
+  public function rmdir($path, $recursive = false)
+  {
+    $this->_checkResponse(
+      $this->_doRequest(
+        'DELETE', $this->_urlPathForKey($path) . '?'
+        . ($recursive ? 'recursive=true' : 'dir=true')
+      ),
+      $path
+    );
   }
 
   /**
@@ -172,11 +183,7 @@ class EtcdClient
       $url .= '?recursive=true';
     }
     $response = $this->_doRequest('GET', $url);
-
-    if($response->getStatusCode() == 404)
-    {
-      throw new NotFoundException($path);
-    }
+    $this->_checkResponse($response, $path);
 
     $result = $response->getJsonBody();
     if(!isset($result->node))
@@ -224,6 +231,24 @@ class EtcdClient
       }
     }
     return $listing;
+  }
+
+  private function _checkResponse(HttpResponse $response, $path = '', $successCodes = [200], $notFoundCodes = [404])
+  {
+    $statusCode = $response->getStatusCode();
+    if(in_array($statusCode, $notFoundCodes))
+    {
+      throw new NotFoundException($path);
+    }
+
+    if(!in_array($statusCode, $successCodes))
+    {
+      throw new EtcdException(
+        "ERROR: Received status code " . $statusCode
+        . " while performing etcd request on path " . $path
+        . ". Full response follows:\n" . $response->getRawBody()
+      );
+    }
   }
 
   private function _urlPathForKey($key)
