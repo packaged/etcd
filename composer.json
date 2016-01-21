@@ -1,6 +1,7 @@
 {
   "name": "packaged/etcd",
   "description": "Etcd client library",
+  "license": "MIT",
   "authors": [
     {
       "name": "Richard Gooding",
